@@ -63,36 +63,7 @@ const AdminDashboard = () => {
     }
   ]
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: 'verification',
-      message: 'New certificate verified for University of Technology',
-      time: '2 minutes ago',
-      status: 'valid'
-    },
-    {
-      id: 2,
-      type: 'alert',
-      message: 'Suspicious certificate flagged from Fake University',
-      time: '15 minutes ago',
-      status: 'flagged'
-    },
-    {
-      id: 3,
-      type: 'blacklist',
-      message: 'Doubtful College added to blacklist',
-      time: '1 hour ago',
-      status: 'blacklisted'
-    },
-    {
-      id: 4,
-      type: 'verification',
-      message: 'Certificate verification completed for State College',
-      time: '2 hours ago',
-      status: 'valid'
-    }
-  ]
+ 
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -237,10 +208,8 @@ const AdminDashboard = () => {
             </div>
           </motion.div>
         </div>
-
         {/* Tables Row */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          <AlertsTable />
           <BlacklistTable />
         </div>
       </div>

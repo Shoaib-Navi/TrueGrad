@@ -2,14 +2,18 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Upload, FileText, CheckCircle, AlertCircle, Eye } from 'lucide-react'
+import { runVerification } from '../services/VerificationEngine'
+import LegacyEntry from './components/LegacyEntry'
 
 const VerifierUpload = () => {
   const [dragActive, setDragActive] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [isVerifying, setIsVerifying] = useState(false)
+  const [showLegacy, setShowLegacy] = useState(false)
+  const [ocrDetails, setOcrDetails] = useState(null)
   const navigate = useNavigate()
 
-  // Mock OCR details
+  // Default OCR details (used when no JSON provided)
   const mockOCRDetails = {
     studentName: 'John Doe',
     institution: 'University of Technology',
@@ -47,15 +51,30 @@ const VerifierUpload = () => {
   }
 
   const handleFile = (file) => {
+    // Accept images or JSON containing OCR fields
     if (file.type.startsWith('image/')) {
       setSelectedFile(file)
+      setOcrDetails(null)
+    } else if (file.type === 'application/json' || file.name.toLowerCase().endsWith('.json')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const json = JSON.parse(e.target.result)
+          setOcrDetails(json)
+          setSelectedFile(null)
+        } catch (err) {
+          alert('Invalid JSON file')
+        }
+      }
+      reader.readAsText(file)
     } else {
-      alert('Please select an image file')
+      alert('Please select an image or OCR .json file')
     }
   }
 
   const handleVerify = async () => {
     if (!selectedFile) return
+
 
     setIsVerifying(true)
 
@@ -70,6 +89,7 @@ const VerifierUpload = () => {
         }
       })
     }, 2000)
+
   }
 
   return (
@@ -102,11 +122,18 @@ const VerifierUpload = () => {
               Upload Certificate
             </h2>
 
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-gray-600">Upload image or .json with OCR fields</span>
+              <button onClick={() => setShowLegacy((v)=>!v)} className="btn-secondary">
+                {showLegacy ? 'Close Manual Entry' : 'Manual Entry (Legacy)'}
+              </button>
+            </div>
+
             <div
               className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 dragActive
                   ? 'border-primary-500 bg-primary-50'
-                  : selectedFile
+                  : (selectedFile || ocrDetails)
                   ? 'border-success-500 bg-success-50'
                   : 'border-gray-300 hover:border-primary-400'
               }`}
@@ -117,7 +144,7 @@ const VerifierUpload = () => {
             >
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,.json,application/json"
                 onChange={handleFileInput}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
@@ -138,6 +165,16 @@ const VerifierUpload = () => {
                     </p>
                   </div>
                 </motion.div>
+              ) : ocrDetails ? (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="space-y-2"
+                >
+                  <CheckCircle className="h-12 w-12 text-success-600 mx-auto" />
+                  <p className="text-lg font-medium text-gray-900">OCR JSON loaded</p>
+                  <p className="text-sm text-gray-600">Using fields from uploaded JSON</p>
+                </motion.div>
               ) : (
                 <div className="space-y-4">
                   <Upload className="h-12 w-12 text-gray-400 mx-auto" />
@@ -150,7 +187,7 @@ const VerifierUpload = () => {
                     </p>
                   </div>
                   <p className="text-xs text-gray-500">
-                    Supports: JPG, PNG, PDF (Max 10MB)
+                    Supports: JPG, PNG (Max 10MB), or OCR JSON
                   </p>
                 </div>
               )}
@@ -163,6 +200,7 @@ const VerifierUpload = () => {
               disabled={!selectedFile || isVerifying}
               className={`w-full mt-6 p-2 rounded-md ${
                 selectedFile && !isVerifying
+
                   ? 'btn-primary'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
@@ -177,7 +215,6 @@ const VerifierUpload = () => {
               )}
             </motion.button>
           </motion.div>
-
         </div>
       </div>
     </div>

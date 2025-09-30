@@ -1,3 +1,4 @@
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { GraduationCap, Shield, Menu, X, LogIn } from "lucide-react";
@@ -25,6 +26,7 @@ const Navbar = () => {
     { path: "/bulk-verifier", label: "Bulk Verifier", icon: BulkUpload },
     { path: "/ocr", label: "OCR Text Extraction", icon: FileText },
   ];
+
 
   return (
     <motion.nav
@@ -54,8 +56,10 @@ const Navbar = () => {
             </div>
           </Link>
 
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
+
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname.startsWith(item.path);
@@ -75,6 +79,7 @@ const Navbar = () => {
                 </Link>
               );
             })}
+
             
             <Link
               to="/login"
@@ -93,6 +98,7 @@ const Navbar = () => {
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
+
           </div>
         </div>
 
